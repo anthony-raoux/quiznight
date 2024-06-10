@@ -2,11 +2,6 @@
 session_start();
 include 'db.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
-}
-
 $stmt = $pdo->query('SELECT * FROM quizzes');
 $quizzes = $stmt->fetchAll();
 ?>
@@ -20,14 +15,13 @@ $quizzes = $stmt->fetchAll();
         .quizItem {
             cursor: pointer;
         }
-
         .loading {
             cursor: wait;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to the Dashboard</h1>
+    <h1>Welcome to the Quiz Dashboard</h1>
     <h2>Available Quizzes</h2>
     <ul id="quizList">
         <?php foreach ($quizzes as $quiz): ?>
@@ -39,9 +33,14 @@ $quizzes = $stmt->fetchAll();
         <!-- Quiz details will be displayed here -->
     </div>
 
-    <form action="logout.php" method="post">
-        <button type="submit">Logout</button>
-    </form>
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <a href="create_quiz.php">Create New Quiz</a>
+        <form action="logout.php" method="post">
+            <button type="submit">Logout</button>
+        </form>
+    <?php else: ?>
+        <a href="login.php">Admin Login</a>
+    <?php endif; ?>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -106,3 +105,4 @@ $quizzes = $stmt->fetchAll();
     </script>
 </body>
 </html>
+

@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <h2>Login</h2>
     <?php if (isset($error)): ?>
-        <p><?php echo $error; ?></p>
+        <p style="color: red;"><?php echo $error; ?></p>
     <?php endif; ?>
     <form action="login.php" method="post">
         <label for="username">Username:</label>
