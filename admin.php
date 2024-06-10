@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <h2>Questions</h2>
             <div class="question">
                 <label>Question</label>
-                <input type="text" name="questions[0][text]">
+                <input type="text" name="questions[][text]">
                 <button type="button" onclick="addAnswer(this)">Add Answer</button>
                 <div class="answers">
                     <div>
@@ -74,40 +74,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </form>
 
     <script>
-        let questionCount = 1;
-
         function addQuestion() {
-            let questionsDiv = document.getElementById('questions');
-            let questionDiv = document.createElement('div');
+            var questionsDiv = document.getElementById('questions');
+            var questionDiv = document.createElement('div');
             questionDiv.classList.add('question');
 
             questionDiv.innerHTML = `
                 <label>Question</label>
-                <input type="text" name="questions[${questionCount}][text]">
+                <input type="text" name="questions[][text]">
                 <button type="button" onclick="addAnswer(this)">Add Answer</button>
                 <div class="answers">
                     <div>
-                        <input type="text" name="questions[${questionCount}][answers][]">
+                        <input type="text" name="questions[][answers][]">
                     </div>
                 </div>
             `;
 
             questionsDiv.appendChild(questionDiv);
-            questionCount++;
         }
 
         function addAnswer(button) {
-            let questionDiv = button.parentElement;
-            let answersDiv = questionDiv.querySelector('.answers');
-            let questionIndex = Array.from(document.getElementsByClassName('question')).indexOf(questionDiv);
-            let answerDiv = document.createElement('div');
-            
-            answerDiv.innerHTML = `
-                <input type="text" name="questions[${questionIndex}][answers][]">
-            `;
-
-            answersDiv.appendChild(answerDiv);
-        }
-    </script>
-</body>
-</html>
+            var answersDiv = button.previousElementSibling;
+            var answer

@@ -1,37 +1,42 @@
 <?php
 session_start();
-require 'db.php'; // Include the database connection
+include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Debugging: echo received input (can be removed after testing)
-    echo "Username: $username<br>";
-    echo "Password: $password<br>";
-
-    // Prepare and execute the SQL statement to select the user
     $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
-    // Debugging: var_dump the user data (can be removed after testing)
-    if ($user) {
-        var_dump($user);
-    } else {
-        echo "User not found";
-    }
-
-    // Check if the user exists and verify the password
     if ($user && password_verify($password, $user['password'])) {
-        // Set session variables and redirect to admin page
         $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        header('Location: admin.php');
+        header('Location: index.php');
         exit;
     } else {
-        echo 'Invalid username or password';
+        $error = 'Invalid username or password';
     }
 }
 ?>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <?php if (isset($error)): ?>
+        <p><?php echo $error; ?></p>
+    <?php endif; ?>
+    <form action="login.php" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
