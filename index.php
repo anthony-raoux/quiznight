@@ -1,39 +1,3 @@
-<?php
-session_start();
-include 'db.php';
-
-// Check if the user is logged in
-if (isset($_SESSION['user_id'])) {
-    // User is logged in, display the quiz list
-    $stmt = $pdo->query('SELECT * FROM quizzes');
-    $quizzes = $stmt->fetchAll();
-} else {
-    // User is not logged in, display the login form
-    ?>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-    </head>
-    <body>
-        <h2>Login</h2>
-        <form action="login.php" method="post">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required><br><br>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required><br><br>
-            <input type="submit" value="Login">
-        </form>
-    </body>
-    </html>
-    <?php
-    // End the script here since we don't want to display the quiz list
-    exit;
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,10 +8,56 @@ if (isset($_SESSION['user_id'])) {
 <body>
     <h1>Welcome to the Dashboard</h1>
     <h2>Available Quizzes</h2>
-    <ul>
+    <ul id="quizList">
         <?php foreach ($quizzes as $quiz): ?>
-            <li><?php echo htmlspecialchars($quiz['title']); ?></li>
+            <li class="quizItem" data-id="<?php echo $quiz['id']; ?>"><?php echo htmlspecialchars($quiz['title']); ?></li>
         <?php endforeach; ?>
     </ul>
+
+    <div id="quizDetails">
+        <!-- Quiz details will be displayed here -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var quizItems = document.querySelectorAll('.quizItem');
+
+            quizItems.forEach(function (item) {
+                item.addEventListener('click', function () {
+                    var quizId = this.getAttribute('data-id');
+                    fetchQuizDetails(quizId);
+                });
+            });
+
+            function fetchQuizDetails(quizId) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            var quizDetails = JSON.parse(xhr.responseText);
+                            displayQuizDetails(quizDetails);
+                        } else {
+                            console.error('Failed to fetch quiz details');
+                        }
+                    }
+                };
+                xhr.open('GET', 'get_quiz_details.php?id=' + quizId, true);
+                xhr.send();
+            }
+
+            function displayQuizDetails(quizDetails) {
+                var quizDetailsContainer = document.getElementById('quizDetails');
+                quizDetailsContainer.innerHTML = '';
+
+                var title = document.createElement('h3');
+                title.textContent = quizDetails.title;
+                quizDetailsContainer.appendChild(title);
+
+                var description = document.createElement('p');
+                description.textContent = quizDetails.description;
+                quizDetailsContainer.appendChild(description);
+            }
+        });
+    </script>
 </body>
 </html>

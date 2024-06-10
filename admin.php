@@ -18,18 +18,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $quiz_id = $pdo->lastInsertId();
 
     foreach ($_POST['questions'] as $question) {
-        $stmt = $pdo->prepare('INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)');
-        $stmt->execute([$quiz_id, $question['text']]);
+        $question_text = $question['text'];
 
-        $question_id = $pdo->lastInsertId();
+        if (!empty($question_text)) {
+            $stmt = $pdo->prepare('INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)');
+            $stmt->execute([$quiz_id, $question_text]);
+            $question_id = $pdo->lastInsertId();
 
-        foreach ($question['answers'] as $answer) {
-            $stmt = $pdo->prepare('INSERT INTO answers (question_id, answer_text, is_correct) VALUES (?, ?, ?)');
-            $stmt->execute([$question_id, $answer['text'], $answer['is_correct']]);
+            if (isset($question['answers']) && is_array($question['answers'])) {
+                foreach ($question['answers'] as $answer) {
+                    $answer_text = $answer;
+                    if (!empty($answer_text)) {
+                        $stmt = $pdo->prepare('INSERT INTO answers (question_id, answer_text) VALUES (?, ?)');
+                        $stmt->execute([$question_id, $answer_text]);
+                    }
+                }
+            }
         }
     }
 
     header('Location: admin.php');
+    exit;
 }
 ?>
 
@@ -48,7 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <div id="questions">
             <h2>Questions</h2>
-            <!-- JavaScript to dynamically add questions and answers -->
+            <div class="question">
+                <label>Question</label>
+                <input type="text" name="questions[0][text]">
+                <button type="button" onclick="addAnswer(this)">Add Answer</button>
+                <div class="answers">
+                    <div>
+                        <input type="text" name="questions[0][answers][]">
+                    </div>
+                </div>
+            </div>
         </div>
 
         <button type="button" onclick="addQuestion()">Add Question</button>
@@ -56,30 +74,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </form>
 
     <script>
+        let questionCount = 1;
+
         function addQuestion() {
-            var questionsDiv = document.getElementById('questions');
-            var questionDiv = document.createElement('div');
+            let questionsDiv = document.getElementById('questions');
+            let questionDiv = document.createElement('div');
+            questionDiv.classList.add('question');
 
             questionDiv.innerHTML = `
                 <label>Question</label>
-                <input type="text" name="questions[][text]">
-                <div class="answers">
-                    <h3>Answers</h3>
-                </div>
+                <input type="text" name="questions[${questionCount}][text]">
                 <button type="button" onclick="addAnswer(this)">Add Answer</button>
+                <div class="answers">
+                    <div>
+                        <input type="text" name="questions[${questionCount}][answers][]">
+                    </div>
+                </div>
             `;
 
             questionsDiv.appendChild(questionDiv);
+            questionCount++;
         }
 
         function addAnswer(button) {
-            var answersDiv = button.previousElementSibling;
-            var answerDiv = document.createElement('div');
-
+            let questionDiv = button.parentElement;
+            let answersDiv = questionDiv.querySelector('.answers');
+            let questionIndex = Array.from(document.getElementsByClassName('question')).indexOf(questionDiv);
+            let answerDiv = document.createElement('div');
+            
             answerDiv.innerHTML = `
-                <input type="text" name="questions[${questionsDiv.children.length - 1}][answers][][text]">
-                <label>Correct</label>
-                <input type="checkbox" name="questions[${questionsDiv.children.length - 1}][answers][][is_correct]">
+                <input type="text" name="questions[${questionIndex}][answers][]">
             `;
 
             answersDiv.appendChild(answerDiv);
