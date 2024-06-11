@@ -60,7 +60,6 @@ $quizzes = $stmt->fetchAll();
             <?php endforeach; ?>
         </ul>
         <div id="quizDetails" class="mt-4">
-            <!-- Quiz details will be displayed here -->
         </div>
     </div>
 

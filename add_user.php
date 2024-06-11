@@ -2,7 +2,7 @@
 require 'db.php'; // Include the database connection
 
 // Example to add a user
-$username = 'anthony';
+$username = 'Jean';
 $password = password_hash('uwu', PASSWORD_BCRYPT);
 
 $stmt = $pdo->prepare('INSERT INTO users (username, password) VALUES (?, ?)');

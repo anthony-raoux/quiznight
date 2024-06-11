@@ -12,24 +12,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST['description'];
     $created_by = $_SESSION['user_id'];
 
-    // Rest of your code...
-    
     $stmt = $pdo->prepare('INSERT INTO quizzes (title, description, created_by) VALUES (?, ?, ?)');
     $stmt->execute([$title, $description, $created_by]);
-    
+
     $quiz_id = $pdo->lastInsertId();
 
-    $question_text = $_POST['question_text'];
+    if (isset($_POST['question_text']) && is_array($_POST['question_text'])) {
+        foreach ($_POST['question_text'] as $index => $questionText) {
+            if (isset($_POST['answer_text'][$index])) {
+                $answerText = $_POST['answer_text'][$index];
 
-    if (!empty($question_text)) {
-        $stmt = $pdo->prepare('INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)');
-        $stmt->execute([$quiz_id, $question_text]);
-        $question_id = $pdo->lastInsertId();
+                $stmt = $pdo->prepare('INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)');
+                $stmt->execute([$quiz_id, $questionText]);
+                $question_id = $pdo->lastInsertId();
 
-        $answer_text = $_POST['answer_text'];
-        if (!empty($answer_text)) {
-            $stmt = $pdo->prepare('INSERT INTO answers (question_id, answer_text) VALUES (?, ?)');
-            $stmt->execute([$question_id, $answer_text]);
+                $stmt = $pdo->prepare('INSERT INTO answers (question_id, answer_text) VALUES (?, ?)');
+                $stmt->execute([$question_id, $answerText]);
+            }
         }
     }
 
@@ -72,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="container mt-4">
         <h1>Create Quiz</h1>
-        <form method="post" action="admin.php">
+        <form id="quizForm" method="post" action="admin.php">
             <div class="form-group">
                 <label for="title">Title</label>
                 <input type="text" class="form-control" name="title" id="title" required>
@@ -81,17 +80,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="description">Description</label>
                 <textarea class="form-control" name="description" id="description" rows="3" required></textarea>
             </div>
-            <div class="form-group">
-                <label for="question_text">Question</label>
-                <input type="text" class="form-control" name="question_text" id="question_text" required>
+            <div id="questions">
+                <div class="form-group">
+                    <label for="question_text">Question</label>
+                    <input type="text" class="form-control" name="question_text[]" required>
+                </div>
+                <div class="form-group">
+                    <label for="answer_text">Answer</label>
+                    <input type="text" class="form-control" name="answer_text[]" required>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="answer_text">Answer</label>
-                <input type="text" class="form-control" name="answer_text" id="answer_text" required>
-            </div>
+            <button type="button" class="btn btn-primary mt-3" onclick="addQuestion()">Add Question</button>
             <button type="submit" class="btn btn-success mt-3">Create Quiz</button>
         </form>
     </div>
+
+    <script>
+        function addQuestion() {
+            var questionsDiv = document.getElementById('questions');
+            var questionDiv = document.createElement('div');
+            questionDiv.classList.add('question', 'mt-4');
+
+            questionDiv.innerHTML = `
+                <div class="form-group">
+                    <label for="question_text">Question</label>
+                    <input type="text" class="form-control" name="question_text[]" required>
+                </div>
+                <div class="form-group">
+                    <label for="answer_text">Answer</label>
+                    <input type="text" class="form-control" name="answer_text[]" required>
+                </div>
+            `;
+
+            questionsDiv.appendChild(questionDiv);
+        }
+    </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
