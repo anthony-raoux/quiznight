@@ -17,13 +17,16 @@ if (!$quiz || $quiz['created_by'] != $_SESSION['user_id']) {
     exit;
 }
 
-$stmt = $pdo->prepare('DELETE FROM quizzes WHERE id = ?');
+// Delete associated answers first
+$stmt = $pdo->prepare('DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?)');
 $stmt->execute([$quiz_id]);
 
+// Then delete associated questions
 $stmt = $pdo->prepare('DELETE FROM questions WHERE quiz_id = ?');
 $stmt->execute([$quiz_id]);
 
-$stmt = $pdo->prepare('DELETE FROM answers WHERE question_id IN (SELECT id FROM questions WHERE quiz_id = ?)');
+// Finally, delete the quiz itself
+$stmt = $pdo->prepare('DELETE FROM quizzes WHERE id = ?');
 $stmt->execute([$quiz_id]);
 
 header('Location: index.php');

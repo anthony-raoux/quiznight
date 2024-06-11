@@ -12,28 +12,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST['description'];
     $created_by = $_SESSION['user_id'];
 
+    // Rest of your code...
+    
     $stmt = $pdo->prepare('INSERT INTO quizzes (title, description, created_by) VALUES (?, ?, ?)');
     $stmt->execute([$title, $description, $created_by]);
-
+    
     $quiz_id = $pdo->lastInsertId();
 
-    foreach ($_POST['questions'] as $question) {
-        $question_text = $question['text'];
+    $question_text = $_POST['question_text'];
 
-        if (!empty($question_text)) {
-            $stmt = $pdo->prepare('INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)');
-            $stmt->execute([$quiz_id, $question_text]);
-            $question_id = $pdo->lastInsertId();
+    if (!empty($question_text)) {
+        $stmt = $pdo->prepare('INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)');
+        $stmt->execute([$quiz_id, $question_text]);
+        $question_id = $pdo->lastInsertId();
 
-            if (isset($question['answers']) && is_array($question['answers'])) {
-                foreach ($question['answers'] as $answer) {
-                    $answer_text = $answer;
-                    if (!empty($answer_text)) {
-                        $stmt = $pdo->prepare('INSERT INTO answers (question_id, answer_text) VALUES (?, ?)');
-                        $stmt->execute([$question_id, $answer_text]);
-                    }
-                }
-            }
+        $answer_text = $_POST['answer_text'];
+        if (!empty($answer_text)) {
+            $stmt = $pdo->prepare('INSERT INTO answers (question_id, answer_text) VALUES (?, ?)');
+            $stmt->execute([$question_id, $answer_text]);
         }
     }
 
@@ -85,57 +81,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="description">Description</label>
                 <textarea class="form-control" name="description" id="description" rows="3" required></textarea>
             </div>
-            <div id="questions">
-                <h2>Questions</h2>
-                <div class="question">
-                    <div class="form-group">
-                        <label>Question</label>
-                        <input type="text" class="form-control" name="questions[][text]">
-                    </div>
-                    <div class="form-group">
-                        <label>Answers</label>
-                        <input type="text" class="form-control" name="questions[][answers][]">
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="addAnswer(this)">Add Answer</button>
-                </div>
+            <div class="form-group">
+                <label for="question_text">Question</label>
+                <input type="text" class="form-control" name="question_text" id="question_text" required>
             </div>
-
-            <button type="button" class="btn btn-primary mt-3" onclick="addQuestion()">Add Question</button>
+            <div class="form-group">
+                <label for="answer_text">Answer</label>
+                <input type="text" class="form-control" name="answer_text" id="answer_text" required>
+            </div>
             <button type="submit" class="btn btn-success mt-3">Create Quiz</button>
         </form>
     </div>
-
-    <script>
-        function addQuestion() {
-            var questionsDiv = document.getElementById('questions');
-            var questionDiv = document.createElement('div');
-            questionDiv.classList.add('question', 'mt-4');
-
-            questionDiv.innerHTML = `
-                <div class="form-group">
-                    <label>Question</label>
-                    <input type="text" class="form-control" name="questions[][text]">
-                </div>
-                <div class="form-group">
-                    <label>Answers</label>
-                    <input type="text" class="form-control" name="questions[][answers][]">
-                </div>
-                <button type="button" class="btn btn-primary" onclick="addAnswer(this)">Add Answer</button>
-            `;
-
-            questionsDiv.appendChild(questionDiv);
-        }
-
-        function addAnswer(button) {
-            var questionDiv = button.parentElement;
-            var answersDiv = questionDiv.querySelector('.form-group:last-child');
-            var answerInput = document.createElement('input');
-            answerInput.type = 'text';
-            answerInput.className = 'form-control mt-2';
-            answerInput.name = 'questions[][answers][]';
-            answersDiv.appendChild(answerInput);
-        }
-    </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>

@@ -54,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $stmt = $pdo->prepare('SELECT * FROM questions WHERE quiz_id = ?');
 $stmt->execute([$quiz_id]);
 $questions = $stmt->fetchAll();
-
 ?>
 
 <!DOCTYPE html>
@@ -76,9 +75,6 @@ $questions = $stmt->fetchAll();
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
                     <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="admin.php">Create Quiz</a>
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">
