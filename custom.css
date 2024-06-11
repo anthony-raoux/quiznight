@@ -1,0 +1,62 @@
+/* Styles pour le formulaire de création de quiz */
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+#questions {
+    margin-bottom: 20px;
+}
+
+.question {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+}
+
+/* Styles pour les boutons */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-success {
+    background-color: #ff69b4; /* Rose ou violet */
+    border-color: #ff69b4; /* Couleur de bordure */
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover,
+.btn-success:hover {
+    background-color: #d855b3; /* Lorsque survolé, légère modification de la couleur */
+    border-color: #d855b3;
+}
+
+/* Styles pour les liens de navigation */
+.navbar-brand,
+.navbar-nav .nav-link {
+    color: #ff69b4; /* Couleur du texte */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #d855b3; /* Lorsque survolé, légère modification de la couleur */
+}
+
+/* Style pour les items de quiz */
+.list-group-item {
+    background-color: #f9f9f9; /* Couleur de fond des items de liste */
+    border-color: #ccc; /* Couleur de la bordure */
+}
+
+.list-group-item:hover {
+    background-color: #eee; /* Lorsque survolé, légère modification de la couleur de fond */
+}
+
+input:focus,
+textarea:focus {
+    outline-color: #000000 !important; /* Couleur du contour lorsqu'elle est sélectionnée */
+    outline-style: solid !important; /* Style du contour */
+    outline-width: 1px !important; /* Épaisseur du contour */
+
+}
