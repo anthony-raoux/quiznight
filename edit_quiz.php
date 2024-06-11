@@ -102,21 +102,21 @@ $questions = $stmt->fetchAll();
             </div>
             <div id="questions">
                 <h2>Questions</h2>
-                <?php foreach ($questions as $question): ?>
+                <?php foreach ($questions as $questionIndex => $question): ?>
                     <div class="question">
                         <div class="form-group">
                             <label>Question</label>
-                            <input type="text" class="form-control" name="questions[][text]" value="<?php echo htmlspecialchars($question['question_text']); ?>">
+                            <input type="text" class="form-control" name="questions[<?php echo $questionIndex; ?>][text]" value="<?php echo htmlspecialchars($question['question_text']); ?>">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group answers">
                             <label>Answers</label>
                             <?php
                             $stmt = $pdo->prepare('SELECT * FROM answers WHERE question_id = ?');
                             $stmt->execute([$question['id']]);
                             $answers = $stmt->fetchAll();
+                            foreach ($answers as $answer):
                             ?>
-                            <?php foreach ($answers as $answer): ?>
-                                <input type="text" class="form-control" name="questions[][answers][]" value="<?php echo htmlspecialchars($answer['answer_text']); ?>">
+                                <input type="text" class="form-control mt-2" name="questions[<?php echo $questionIndex; ?>][answers][]" value="<?php echo htmlspecialchars($answer['answer_text']); ?>">
                             <?php endforeach; ?>
                         </div>
                         <button type="button" class="btn btn-primary" onclick="addAnswer(this)">Add Answer</button>
@@ -130,6 +130,8 @@ $questions = $stmt->fetchAll();
     </div>
 
     <script>
+        let questionIndex = <?php echo count($questions); ?>;
+
         function addQuestion() {
             var questionsDiv = document.getElementById('questions');
             var questionDiv = document.createElement('div');
@@ -138,25 +140,25 @@ $questions = $stmt->fetchAll();
             questionDiv.innerHTML = `
                 <div class="form-group">
                     <label>Question</label>
-                    <input type="text" class="form-control" name="questions[][text]">
+                    <input type="text" class="form-control" name="questions[${questionIndex}][text]">
                 </div>
-                <div class="form-group">
+                <div class="form-group answers">
                     <label>Answers</label>
-                    <input type="text" class="form-control" name="questions[][answers][]">
+                    <input type="text" class="form-control" name="questions[${questionIndex}][answers][]">
                 </div>
                 <button type="button" class="btn btn-primary" onclick="addAnswer(this)">Add Answer</button>
             `;
 
             questionsDiv.appendChild(questionDiv);
+            questionIndex++;
         }
 
         function addAnswer(button) {
-            var questionDiv = button.parentElement;
-            var answersDiv = questionDiv.querySelector('.form-group:last-child');
+            var answersDiv = button.previousElementSibling;
             var answerInput = document.createElement('input');
             answerInput.type = 'text';
             answerInput.className = 'form-control mt-2';
-            answerInput.name = 'questions[][answers][]';
+            answerInput.name = answersDiv.querySelector('input').name;
             answersDiv.appendChild(answerInput);
         }
     </script>
