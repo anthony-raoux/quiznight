@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+	<meta name="author" content="AdminKit">
+	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link rel="shortcut icon" href="img/icons/icon-48x48.png" />
+
+	<link rel="canonical" href="https://demo-basic.adminkit.io/" />
+
+	<title>AdminKit Demo - Bootstrap 5 Admin Template</title>
+
+	<link href="app.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+	<div class="wrapper">
+		<nav id="sidebar" class="sidebar js-sidebar">
+			<div class="sidebar-content js-simplebar">
+				<a class="sidebar-brand" href="index.html">
+          <span class="align-middle">Quiz Night</span>
+        </a>
+
+				<ul class="sidebar-nav">
+					<li class="sidebar-header">
+						Pages
+					</li>
+
+					<li class="sidebar-item active">
+						<a class="sidebar-link" href="index.html">
+							<i class="align-middle" data-feather="user-plus"></i> 
+							<span class="align-middle">Ajouter un quiz</span>
+						</a>
+					</li>
+					<li class="sidebar-item ">
+						<a class="sidebar-link" href="index.html">
+							<i class="align-middle" data-feather="sliders"></i> 
+							<span class="align-middle">Dashboard</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="pages-profile.html">
+							<i class="align-middle" data-feather="user"></i> <span class="align-middle">Utilisateur</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="pages-sign-in.html">
+              <i class="align-middle" data-feather="log-in"></i> <span class="align-middle">Voir les Quiz</span>
+            </a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="pages-sign-up.html">
+              <i class="align-middle" data-feather="user-plus"></i> <span class="align-middle">Sign Up</span>
+            </a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="pages-blank.html">
+              <i class="align-middle" data-feather="book"></i> <span class="align-middle">Blank</span>
+            </a>
+					</li>
+
+			</div>
+		</nav>
+
+		<div class="main">
+			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+          <i class="hamburger align-self-center"></i>
+        </a>
+
+				<div class="navbar-collapse collapse">
+					<ul class="navbar-nav navbar-align">
+						
+						
+						<li class="nav-item dropdown">
+							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
+                <i class="align-middle" data-feather="settings"></i>
+              </a>
+
+							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
+                <img src="img/avatars/Luffy.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark">Admin D Luffy</span>
+              </a>
+							<div class="dropdown-menu dropdown-menu-end">
+								<a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
+								<div class="dropdown-divider"></div>
+								
+								<form class="p-0" method="POST" action="../login.php" id="logout-form">
+									<button type="submit" class="btn text-danger">Déconnexion</button>
+								</form>
+								
+
+							</div>
+						</li>
+					</ul>
+				</div>
+			</nav>
+
+			<main class="content">
+				<div class="container-fluid p-0">
+
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<h1 class="h3 mb-3"><strong>Dashboard</strong> Administrateur </h1>
+						<button type="button" class="btn btn-secondary" onclick="addQuestion()">Ajouter une question</button>
+					</div>
+					<!-- Ajoute le Nom d'utilisateur a la réussite de la connexion de l'administrateur-->
+					<h1 class="h3 mb-3">Bonjour <strong> <!-- Nom d'utilisateur --> </strong> </h1>
+					<div class="row">
+						<div class="col-12 col-lg-12 col-xxl-12 d-flex">
+							<div class="card flex-fill">
+								<div class="card-header">
+
+
+									<!-- Début de section QUIZ -->
+
+									<div class="container">
+										<h1>Ajouter un nouveau Quiz</h1>
+										<!-- Formulaire d'ajout de quiz, question et réponse -->
+										<form method="POST" action="add_quiz.php" id="add-quiz-form">
+											<div class="form-group">
+												<label for="quiz-title">Titre du quiz :</label>
+												<input type="text" class="form-control" id="quiz-title" name="quiz_title" required>
+											</div>
+											<div class="form-group">
+												<label for="created-by">Créé par :</label>
+												<input type="text" class="form-control" id="created-by" name="created_by" required>
+											</div>
+								
+											<h2>Questions</h2>
+											<div id="questions-container">
+												<div class="question-block">
+													<div class="form-group">
+														<label for="question-text">Question :</label>
+														<input type="text" class="form-control" name="questions[0][question_text]" required>
+													</div>
+													<h3>Réponses</h3>
+													<div class="form-group">
+														<label for="answer-text">Réponse :</label>
+														<input type="text" class="form-control" name="questions[0][answers][0][answer_text]" required>
+														<label for="is-correct">Est-ce la bonne réponse ?</label>
+														<select class="form-control" name="questions[0][answers][0][is_correct]" required>
+															<option value="1">Oui</option>
+															<option value="0">Non</option>
+														</select>
+													</div>
+												</div>
+											</div>
+											
+											<button type="submit" class="btn btn-primary mt-3">Ajouter le quiz</button>
+										</form>
+									</div>
+								
+									<script>
+										let questionCount = 1;
+								
+										function addQuestion() {
+											const container = document.getElementById('questions-container');
+											const questionBlock = document.createElement('div');
+											questionBlock.className = 'question-block';
+											questionBlock.innerHTML = `
+												<hr>
+												<div class="form-group">
+													<label for="question-text">Question :</label>
+													<input type="text" class="form-control" name="questions[${questionCount}][question_text]" required>
+												</div>
+												<h3>Réponses</h3>
+												<div class="form-group">
+													<label for="answer-text">Réponse :</label>
+													<input type="text" class="form-control" name="questions[${questionCount}][answers][0][answer_text]" required>
+													<label for="is-correct">Est-ce la bonne réponse ?</label>
+													<select class="form-control" name="questions[${questionCount}][answers][0][is_correct]" required>
+														<option value="1">Oui</option>
+														<option value="0">Non</option>
+													</select>
+												</div>
+											`;
+											container.appendChild(questionBlock);
+											questionCount++;
+										}
+									</script>
+
+
+									<!-- Fin de la section QUIZ -->
+
+								</div>
+								
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</main>
+
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="row text-muted">
+						<div class="col-6 text-start">
+							<p class="mb-0">
+								<a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>AdminKit</strong></a> - <a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>Bootstrap Admin Template</strong></a>								&copy;
+							</p>
+						</div>
+						<div class="col-6 text-end">
+							<ul class="list-inline">
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Support</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Help Center</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Privacy</a>
+								</li>
+								<li class="list-inline-item">
+									<a class="text-muted" href="https://adminkit.io/" target="_blank">Terms</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+	<script src="app.js"></script>
+
+</body>
+
+</html>
