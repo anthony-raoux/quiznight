@@ -7,15 +7,25 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$quiz_id = $_GET['id'];
+$stmt = $pdo->prepare('SELECT * FROM quizzes WHERE id = ?');
+$stmt->execute([$quiz_id]);
+$quiz = $stmt->fetch();
+
+if (!$quiz || $quiz['created_by'] != $_SESSION['user_id']) {
+    header('Location: index.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = $_POST['title'];
     $description = $_POST['description'];
-    $created_by = $_SESSION['user_id'];
 
-    $stmt = $pdo->prepare('INSERT INTO quizzes (title, description, created_by) VALUES (?, ?, ?)');
-    $stmt->execute([$title, $description, $created_by]);
+    $stmt = $pdo->prepare('UPDATE quizzes SET title = ?, description = ? WHERE id = ?');
+    $stmt->execute([$title, $description, $quiz_id]);
 
-    $quiz_id = $pdo->lastInsertId();
+    $stmt = $pdo->prepare('DELETE FROM questions WHERE quiz_id = ?');
+    $stmt->execute([$quiz_id]);
 
     foreach ($_POST['questions'] as $question) {
         $question_text = $question['text'];
@@ -37,9 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    header('Location: admin.php');
+    header('Location: index.php');
     exit;
 }
+
+$stmt = $pdo->prepare('SELECT * FROM questions WHERE quiz_id = ?');
+$stmt->execute([$quiz_id]);
+$questions = $stmt->fetchAll();
+
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Quiz</title>
+    <title>Edit Quiz</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -75,33 +90,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </nav>
 
     <div class="container mt-4">
-        <h1>Create Quiz</h1>
-        <form method="post" action="admin.php">
+        <h1>Edit Quiz</h1>
+        <form method="post" action="edit_quiz.php?id=<?php echo $quiz_id; ?>">
             <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" class="form-control" name="title" id="title" required>
+                <input type="text" class="form-control" name="title" id="title" value="<?php echo htmlspecialchars($quiz['title']); ?>" required>
             </div>
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea class="form-control" name="description" id="description" rows="3" required></textarea>
+                <textarea class="form-control" name="description" id="description" rows="3" required><?php echo htmlspecialchars($quiz['description']); ?></textarea>
             </div>
             <div id="questions">
                 <h2>Questions</h2>
-                <div class="question">
-                    <div class="form-group">
-                        <label>Question</label>
-                        <input type="text" class="form-control" name="questions[][text]">
+                <?php foreach ($questions as $question): ?>
+                    <div class="question">
+                        <div class="form-group">
+                            <label>Question</label>
+                            <input type="text" class="form-control" name="questions[][text]" value="<?php echo htmlspecialchars($question['question_text']); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Answers</label>
+                            <?php
+                            $stmt = $pdo->prepare('SELECT * FROM answers WHERE question_id = ?');
+                            $stmt->execute([$question['id']]);
+                            $answers = $stmt->fetchAll();
+                            ?>
+                            <?php foreach ($answers as $answer): ?>
+                                <input type="text" class="form-control" name="questions[][answers][]" value="<?php echo htmlspecialchars($answer['answer_text']); ?>">
+                            <?php endforeach; ?>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="addAnswer(this)">Add Answer</button>
                     </div>
-                    <div class="form-group">
-                        <label>Answers</label>
-                        <input type="text" class="form-control" name="questions[][answers][]">
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="addAnswer(this)">Add Answer</button>
-                </div>
+                <?php endforeach; ?>
             </div>
 
             <button type="button" class="btn btn-primary mt-3" onclick="addQuestion()">Add Question</button>
-            <button type="submit" class="btn btn-success mt-3">Create Quiz</button>
+            <button type="submit" class="btn btn-success mt-3">Update Quiz</button>
         </form>
     </div>
 

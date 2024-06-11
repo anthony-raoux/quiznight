@@ -17,14 +17,18 @@ $quizzes = $stmt->fetchAll();
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">Quiz App</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="index.php">Home</a>
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="create_quiz.php">Create Quiz</a>
+                        <a class="nav-link" href="admin.php">Create Quiz</a>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -44,14 +48,17 @@ $quizzes = $stmt->fetchAll();
 
     <div class="container mt-4">
         <h1>Available Quizzes</h1>
-        <ul id="quizList" class="list-group">
+        <ul class="list-group">
             <?php foreach ($quizzes as $quiz): ?>
-                <li class="list-group-item quizItem" data-id="<?php echo $quiz['id']; ?>">
-                    <?php echo htmlspecialchars($quiz['title']); ?>
+                <li class="list-group-item">
+                    <span class="quizItem" data-id="<?php echo $quiz['id']; ?>"><?php echo htmlspecialchars($quiz['title']); ?></span>
+                    <?php if (isset($_SESSION['user_id']) && $quiz['created_by'] == $_SESSION['user_id']): ?>
+                        <a href="edit_quiz.php?id=<?php echo $quiz['id']; ?>" class="btn btn-secondary btn-sm ml-2">Edit</a>
+                        <a href="delete_quiz.php?id=<?php echo $quiz['id']; ?>" class="btn btn-danger btn-sm ml-2">Delete</a>
+                    <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         </ul>
-
         <div id="quizDetails" class="mt-4">
             <!-- Quiz details will be displayed here -->
         </div>
@@ -95,46 +102,10 @@ $quizzes = $stmt->fetchAll();
                 var description = document.createElement('p');
                 description.textContent = quizDetails.description;
                 quizDetailsContainer.appendChild(description);
-
-                // Display questions and answers
-                quizDetails.questions.forEach(function (question) {
-                    var questionDiv = document.createElement('div');
-                    var questionTitle = document.createElement('h4');
-                    questionTitle.textContent = question.text;
-                    questionDiv.appendChild(questionTitle);
-
-                    question.answers.forEach(function (answer) {
-                        var answerText = document.createElement('p');
-                        answerText.textContent = answer.text;
-                        questionDiv.appendChild(answerText);
-                    });
-
-                    quizDetailsContainer.appendChild(questionDiv);
-                });
-
-                // Add edit and delete buttons if user is logged in
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    var editButton = document.createElement('button');
-                    editButton.textContent = 'Edit Quiz';
-                    editButton.classList.add('btn', 'btn-warning');
-                    editButton.addEventListener('click', function () {
-                        window.location.href = 'edit_quiz.php?id=' + quizDetails.id;
-                    });
-                    quizDetailsContainer.appendChild(editButton);
-
-                    var deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete Quiz';
-                    deleteButton.classList.add('btn', 'btn-danger');
-                    deleteButton.addEventListener('click', function () {
-                        if (confirm('Are you sure you want to delete this quiz?')) {
-                            window.location.href = 'delete_quiz.php?id=' + quizDetails.id;
-                        }
-                    });
-                    quizDetailsContainer.appendChild(deleteButton);
-                <?php endif; ?>
             }
         });
     </script>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
