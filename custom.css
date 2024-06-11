@@ -33,6 +33,20 @@
     border-color: #d855b3;
 }
 
+/* Styles pour les boutons spécifiques (voir et masquer la réponse) */
+.btn-show-answer,
+.btn-hide-answer {
+    background-color: #ff69b4; /* Rose */
+    border-color: #ff69b4;
+    color: white;
+}
+
+.btn-show-answer:hover,
+.btn-hide-answer:hover {
+    background-color: #d855b3; /* Violet lors du survol */
+    border-color: #d855b3;
+}
+
 /* Styles pour les liens de navigation */
 .navbar-brand,
 .navbar-nav .nav-link {
@@ -58,5 +72,4 @@ textarea:focus {
     outline-color: #000000 !important; /* Couleur du contour lorsqu'elle est sélectionnée */
     outline-style: solid !important; /* Style du contour */
     outline-width: 1px !important; /* Épaisseur du contour */
-
 }
