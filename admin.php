@@ -1,124 +1,124 @@
 <?php
 session_start();
-include 'db.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: login.php");
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = $_POST['title'];
-    $description = $_POST['description'];
-    $created_by = $_SESSION['user_id'];
+require_once __DIR__ . '/classes/Database.php';
+require_once __DIR__ . '/classes/Quiz.php';
+require_once __DIR__ . '/classes/Question.php';
+require_once __DIR__ . '/classes/Answer.php';
 
-    $stmt = $pdo->prepare('INSERT INTO quizzes (title, description, created_by) VALUES (?, ?, ?)');
-    $stmt->execute([$title, $description, $created_by]);
+$database = new Database();
+$db = $database->getConnection();
 
-    $quiz_id = $pdo->lastInsertId();
+$quiz = new Quiz($db);
+$question = new Question($db);
+$answer = new Answer($db);
 
-    if (isset($_POST['question_text']) && is_array($_POST['question_text'])) {
-        foreach ($_POST['question_text'] as $index => $questionText) {
-            if (isset($_POST['answer_text'][$index])) {
-                $answerText = $_POST['answer_text'][$index];
+if ($_POST) {
+    $quiz->title = $_POST['title'];
+    $quiz->description = $_POST['description'];
+    $quiz->created_by = $_SESSION['admin_id'];
 
-                $stmt = $pdo->prepare('INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)');
-                $stmt->execute([$quiz_id, $questionText]);
-                $question_id = $pdo->lastInsertId();
+    if ($quiz->create()) {
+        $quiz_id = $db->lastInsertId();
 
-                $stmt = $pdo->prepare('INSERT INTO answers (question_id, answer_text) VALUES (?, ?)');
-                $stmt->execute([$question_id, $answerText]);
+        foreach ($_POST['questions'] as $q) {
+            $question->quiz_id = $quiz_id;
+            $question->question = $q['question'];
+            $question_id = $question->create();
+
+            foreach ($q['answers'] as $key => $answer_text) {
+                $is_correct = ($key == $q['correct_answer']) ? 1 : 0;
+                $answer->question_id = $question_id;
+                $answer->answer = $answer_text;
+                $answer->is_correct = $is_correct;
+                $answer->create();
             }
         }
     }
-
-    header('Location: admin.php');
-    exit;
 }
+
+$quizzes = $quiz->readAll();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Quiz</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="custom.css" rel="stylesheet"> 
+    <title>Admin</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="index.php">Quiz App</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="admin.php">Create Quiz</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php">Logout</a>
-                </li>
-            </ul>
+    <h1>Create Quiz</h1>
+    <form action="admin.php" method="post">
+        <div>
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title" required>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        <h1>Create Quiz</h1>
-        <form id="quizForm" method="post" action="admin.php">
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" class="form-control" name="title" id="title" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea class="form-control" name="description" id="description" rows="3" required></textarea>
-            </div>
+        <div>
+            <label for="description">Description</label>
+            <textarea name="description" id="description" required></textarea>
+        </div>
+        <div>
+            <label for="questions">Questions</label>
             <div id="questions">
-                <div class="form-group">
-                    <label for="question_text">Question</label>
-                    <input type="text" class="form-control" name="question_text[]" required>
-                </div>
-                <div class="form-group">
-                    <label for="answer_text">Answer</label>
-                    <input type="text" class="form-control" name="answer_text[]" required>
+                <div class="question">
+                    <input type="text" name="questions[0][question]" placeholder="Question" required>
+                    <div class="answers">
+                        <input type="text" name="questions[0][answers][]" placeholder="Answer 1" required>
+                        <input type="radio" name="questions[0][correct_answer]" value="0" required> Correct<br>
+                        <input type="text" name="questions[0][answers][]" placeholder="Answer 2" required>
+                        <input type="radio" name="questions[0][correct_answer]" value="1" required> Correct<br>
+                        <input type="text" name="questions[0][answers][]" placeholder="Answer 3" required>
+                        <input type="radio" name="questions[0][correct_answer]" value="2" required> Correct
+                    </div>
+                    <button type="button" onclick="addAnswer(this)">Add Answer</button>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary mt-3" onclick="addQuestion()">Add Question</button>
-            <button type="submit" class="btn btn-success mt-3">Create Quiz</button>
-        </form>
-    </div>
+            <button type="button" onclick="addQuestion()">Add Question</button>
+        </div>
+        <button type="submit">Create Quiz</button>
+    </form>
+
+    <h1>Existing Quizzes</h1>
+    <ul>
+        <?php while ($row = $quizzes->fetch(PDO::FETCH_ASSOC)) { ?>
+            <li><?php echo $row['title']; ?> - <?php echo $row['description']; ?></li>
+        <?php } ?>
+    </ul>
 
     <script>
         function addQuestion() {
-            var questionsDiv = document.getElementById('questions');
-            var questionDiv = document.createElement('div');
-            questionDiv.classList.add('question', 'mt-4');
+            const questions = document.getElementById('questions');
+            const count = questions.children.length;
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<input type="text" name="questions[${count}][question]" placeholder="Question" required>
+                             <div class="answers">
+                                 <input type="text" name="questions[${count}][answers][]" placeholder="Answer" required>
+                                 <input type="radio" name="questions[${count}][correct_answer]" value="0" required> Correct<br>
+                                 <input type="text" name="questions[${count}][answers][]" placeholder="Answer" required>
+                                 <input type="radio" name="questions[${count}][correct_answer]" value="1" required> Correct<br>
+                                 <input type="text" name="questions[${count}][answers][]" placeholder="Answer" required>
+                                 <input type="radio" name="questions[${count}][correct_answer]" value="2" required> Correct
+                                 
+                             </div>
+                             <button type="button" onclick="addAnswer(this)">Add Answer</button>`;
+            questions.appendChild(div);
+        }
 
-            questionDiv.innerHTML = `
-                <div class="form-group">
-                    <label for="question_text">Question</label>
-                    <input type="text" class="form-control" name="question_text[]" required>
-                </div>
-                <div class="form-group">
-                    <label for="answer_text">Answer</label>
-                    <input type="text" class="form-control" name="answer_text[]" required>
-                </div>
-            `;
-
-            questionsDiv.appendChild(questionDiv);
+        function addAnswer(button) {
+            const answers = button.previousElementSibling;
+            const count = answers.children.length / 2; // divide by 2 because each answer has two elements (input + radio)
+            const div = document.createElement('div');
+            div.classList.add('answer');
+            div.innerHTML = `<input type="text" name="answers[${count}][answer]" placeholder="Answer" required>
+                             <input type="radio" name="questions[${count}][correct_answer]" value="${count}" required> Correct`;
+            answers.appendChild(div);
         }
     </script>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
