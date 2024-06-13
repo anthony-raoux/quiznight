@@ -1,166 +1,77 @@
 <?php
 session_start();
-include 'db.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+// Vérifie si l'utilisateur est connecté en tant qu'admin
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: login.php");
     exit;
 }
 
-$quiz_id = $_GET['id'];
-$stmt = $pdo->prepare('SELECT * FROM quizzes WHERE id = ?');
-$stmt->execute([$quiz_id]);
-$quiz = $stmt->fetch();
+// Inclusion des fichiers requis
+require_once __DIR__ . '/classes/Database.php';
+require_once __DIR__ . '/classes/Quiz.php';
 
-if (!$quiz || $quiz['created_by'] != $_SESSION['user_id']) {
-    header('Location: index.php');
-    exit;
-}
+// Initialisation de la connexion à la base de données et de l'objet Quiz
+$database = new Database();
+$db = $database->getConnection();
+$quiz = new Quiz($db);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = $_POST['title'];
-    $description = $_POST['description'];
+// Vérifie si l'ID du quiz à éditer est présent dans l'URL
+if (isset($_GET['id'])) {
+    $quiz_id = $_GET['id'];
 
-    $stmt = $pdo->prepare('UPDATE quizzes SET title = ?, description = ? WHERE id = ?');
-    $stmt->execute([$title, $description, $quiz_id]);
+    // Utilisation de la méthode readOne() pour récupérer les détails du quiz
+    $stmt = $quiz->readOne($quiz_id);
 
-    $stmt = $pdo->prepare('DELETE FROM questions WHERE quiz_id = ?');
-    $stmt->execute([$quiz_id]);
-
-    foreach ($_POST['questions'] as $question) {
-        $question_text = $question['text'];
-
-        if (!empty($question_text)) {
-            $stmt = $pdo->prepare('INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)');
-            $stmt->execute([$quiz_id, $question_text]);
-            $question_id = $pdo->lastInsertId();
-
-            if (isset($question['answers']) && is_array($question['answers'])) {
-                foreach ($question['answers'] as $answer) {
-                    $answer_text = $answer;
-                    if (!empty($answer_text)) {
-                        $stmt = $pdo->prepare('INSERT INTO answers (question_id, answer_text) VALUES (?, ?)');
-                        $stmt->execute([$question_id, $answer_text]);
-                    }
-                }
-            }
-        }
+    // Vérification si le quiz existe
+    if ($stmt->rowCount() > 0) {
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $quiz_title = $row['title'];
+        $quiz_description = $row['description'];
+    } else {
+        // Si le quiz n'est pas trouvé, rediriger ou afficher un message d'erreur
+        echo "Quiz not found.";
+        exit;
     }
-
-    header('Location: index.php');
+} else {
+    // Si l'ID du quiz n'est pas présent dans l'URL, gérer cette situation
+    echo "Quiz ID is missing.";
     exit;
 }
-
-$stmt = $pdo->prepare('SELECT * FROM questions WHERE quiz_id = ?');
-$stmt->execute([$quiz_id]);
-$questions = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Quiz</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intégration de Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="index.php">Quiz App</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <!-- Navbar -->
+    <?php include 'navbar.php'; ?>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
+    <div class="container mt-5">
         <h1>Edit Quiz</h1>
-        <form method="post" action="edit_quiz.php?id=<?php echo $quiz_id; ?>">
+        <form action="update_quiz.php" method="post">
+            <input type="hidden" name="quiz_id" value="<?php echo htmlspecialchars($quiz_id); ?>">
             <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" class="form-control" name="title" id="title" value="<?php echo htmlspecialchars($quiz['title']); ?>" required>
+                <input type="text" name="title" id="title" class="form-control" value="<?php echo htmlspecialchars($quiz_title); ?>" required>
             </div>
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea class="form-control" name="description" id="description" rows="3" required><?php echo htmlspecialchars($quiz['description']); ?></textarea>
+                <textarea name="description" id="description" class="form-control" required><?php echo htmlspecialchars($quiz_description); ?></textarea>
             </div>
-            <div id="questions">
-                <h2>Questions</h2>
-                <?php foreach ($questions as $questionIndex => $question): ?>
-                    <div class="question">
-                        <div class="form-group">
-                            <label>Question</label>
-                            <input type="text" class="form-control" name="questions[<?php echo $questionIndex; ?>][text]" value="<?php echo htmlspecialchars($question['question_text']); ?>">
-                        </div>
-                        <div class="form-group answers">
-                            <label>Answers</label>
-                            <?php
-                            $stmt = $pdo->prepare('SELECT * FROM answers WHERE question_id = ?');
-                            $stmt->execute([$question['id']]);
-                            $answers = $stmt->fetchAll();
-                            foreach ($answers as $answer):
-                            ?>
-                                <input type="text" class="form-control mt-2" name="questions[<?php echo $questionIndex; ?>][answers][]" value="<?php echo htmlspecialchars($answer['answer_text']); ?>">
-                            <?php endforeach; ?>
-                        </div>
-                        <button type="button" class="btn btn-primary" onclick="addAnswer(this)">Add Answer</button>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-            <button type="button" class="btn btn-primary mt-3" onclick="addQuestion()">Add Question</button>
-            <button type="submit" class="btn btn-success mt-3">Update Quiz</button>
+            <button type="submit" class="btn btn-primary">Update Quiz</button>
         </form>
     </div>
 
-    <script>
-        let questionIndex = <?php echo count($questions); ?>;
+    <!-- Footer -->
+    <?php include 'footer.php'; ?>
 
-        function addQuestion() {
-            var questionsDiv = document.getElementById('questions');
-            var questionDiv = document.createElement('div');
-            questionDiv.classList.add('question', 'mt-4');
-
-            questionDiv.innerHTML = `
-                <div class="form-group">
-                    <label>Question</label>
-                    <input type="text" class="form-control" name="questions[${questionIndex}][text]">
-                </div>
-                <div class="form-group answers">
-                    <label>Answers</label>
-                    <input type="text" class="form-control" name="questions[${questionIndex}][answers][]">
-                </div>
-                <button type="button" class="btn btn-primary" onclick="addAnswer(this)">Add Answer</button>
-            `;
-
-            questionsDiv.appendChild(questionDiv);
-            questionIndex++;
-        }
-
-        function addAnswer(button) {
-            var answersDiv = button.previousElementSibling;
-            var answerInput = document.createElement('input');
-            answerInput.type = 'text';
-            answerInput.className = 'form-control mt-2';
-            answerInput.name = answersDiv.querySelector('input').name;
-            answersDiv.appendChild(answerInput);
-        }
-    </script>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <!-- Intégration de Bootstrap JS (optionnel, dépendant de vos besoins) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

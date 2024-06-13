@@ -87,7 +87,7 @@ $quizzes = $quiz->readAll();
                             <input type="radio" name="questions[0][correct_answer]" value="3" required> Correct
                         </div>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="addAnswer(this)">Add Answer</button>
+                  
                 </div>
             </div>
             <button type="button" class="btn btn-secondary" onclick="addQuestion()">Add Question</button>
@@ -95,12 +95,19 @@ $quizzes = $quiz->readAll();
         </form>
 
         <h1 class="mt-5">Existing Quizzes</h1>
-        <ul class="list-group">
-            <?php while ($row = $quizzes->fetch(PDO::FETCH_ASSOC)) { ?>
-                <li class="list-group-item"><?php echo $row['title']; ?> - <?php echo $row['description']; ?></li>
-            <?php } ?>
-        </ul>
-    </div>
+    <?php while ($row = $quizzes->fetch(PDO::FETCH_ASSOC)) { ?>
+    <li class="list-group-item">
+        <?php echo $row['title']; ?> - <?php echo $row['description']; ?>
+        <div class="btn-group float-right" role="group">
+            <a href="edit_quiz.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm">Edit</a>
+            <form action="delete_quiz.php" method="post" style="display: inline;">
+                <input type="hidden" name="quiz_id" value="<?php echo $row['id']; ?>">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this quiz?')">Delete</button>
+            </form>
+        </div>
+    </li>
+<?php } ?>
+
 
     <script>
         function addQuestion() {
@@ -123,20 +130,16 @@ $quizzes = $quiz->readAll();
                                      <input type="text" name="questions[${count}][answers][]" class="form-control" placeholder="Answer 3" required>
                                      <input type="radio" name="questions[${count}][correct_answer]" value="2" required> Correct
                                  </div>
+                                   <div class="form-group">
+                                     <input type="text" name="questions[${count}][answers][]" class="form-control" placeholder="Answer 4" required>
+                                     <input type="radio" name="questions[${count}][correct_answer]" value="3" required> Correct
+                                 </div>
                              </div>
                              <button type="button" class="btn btn-secondary" onclick="addAnswer(this)">Add Answer</button>`;
             questions.appendChild(div);
         }
 
-        function addAnswer(button) {
-            const answers = button.previousElementSibling;
-            const count = answers.children.length / 2; // divide by 2 because each answer has two elements (input + radio)
-            const div = document.createElement('div');
-            div.classList.add('form-group');
-            div.innerHTML = `<input type="text" name="answers[${count}][answer]" class="form-control" placeholder="Answer" required>
-                             <input type="radio" name="questions[${count}][correct_answer]" value="${count}" required> Correct`;
-            answers.appendChild(div);
-        }
+     
     </script>
 
     <?php include 'footer.php'; ?>

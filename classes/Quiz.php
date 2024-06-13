@@ -15,6 +15,37 @@ class Quiz {
         $this->conn = $db;
     }
 
+    public function getAllQuizzes() {
+        $query = "SELECT * FROM quizzes";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function update($quiz_id, $title, $description) {
+        $query = "UPDATE quizzes SET title = :title, description = :description WHERE id = :quiz_id";
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindParam(':title', $title);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':quiz_id', $quiz_id);
+
+        if ($stmt->execute()) {
+            return true; // Succès de la mise à jour
+        } else {
+            return false; // Échec de la mise à jour
+        }
+    }
+    public function readOne($quiz_id) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $quiz_id);
+        $stmt->execute();
+
+        return $stmt;
+    }
+
     public function getQuizById($quiz_id)
     {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = ?";
