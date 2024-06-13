@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz Night</title>
+    <title>Quiz Night - Register</title>
     <!-- Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -28,23 +28,36 @@ if (session_status() === PHP_SESSION_NONE) {
                 <?php if (isset($_SESSION['admin_id'])) : ?>
                     <li class="nav-item">
                         <a class="nav-link" href="admin.php">Admin</a>
-                    </li>  <li class="nav-item">
-                        <a class="nav-link" href="profile.php">Profile</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="logout.php">Logout</a>
                     </li>
                 <?php else : ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="register.php">Inscription</a>
+                        <a class="nav-link" href="login.php">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.php">Login</a>
+                        <a class="nav-link" href="register.php">Register</a>
                     </li>
                 <?php endif; ?>
             </ul>
         </div>
     </nav>
+
+    <div class="container mt-5">
+        <h2>Register</h2>
+        <form action="register_process.php" method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+    </div>
 
     <!-- Bootstrap JS, Popper.js, and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

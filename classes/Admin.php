@@ -49,4 +49,56 @@ class Admin {
 
         return false;
     }
+
+    public function getAdminById() {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $this->id);
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $this->username = $row['username'];
+            // Ajouter d'autres attributs selon votre besoin
+            return true;
+        }
+        
+        return false;
+    }
+
+    public function updatePassword($new_password) {
+        // Hasher le nouveau mot de passe
+        $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+
+        // Préparer la requête SQL pour mettre à jour le mot de passe
+        $query = "UPDATE " . $this->table_name . " SET password = :password WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+
+        // Liaison des paramètres
+        $stmt->bindParam(':password', $hashed_password);
+        $stmt->bindParam(':id', $this->id);
+
+        // Exécution de la requête
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            // En cas d'erreur, afficher l'erreur SQL pour le débogage
+            print_r($stmt->errorInfo());
+            return false;
+        }
+    }
+    
+    public function delete() {
+        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $this->id);
+
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
 }
