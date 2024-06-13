@@ -55,7 +55,7 @@ $quizzes = $quiz->readAll();
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-w1QBRaD/smK2uWRzyD1O3uTps9pBBHiC4N9iwUb5Kr8KSkM+SOJwB3TrC6K06fxE" crossorigin="anonymous">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="path/to/your/custom.css">
+    <link rel="stylesheet" href="./custom.css">
 </head>
 <body>
     <div class="container">
