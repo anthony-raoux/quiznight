@@ -136,7 +136,7 @@ $quizzes = $quiz->readAll();
                                      <input type="radio" name="questions[${count}][correct_answer]" value="3" required> Correct
                                  </div>
                              </div>
-                             <button type="button" class="btn btn-secondary" onclick="addAnswer(this)">Add Answer</button>`;
+                             <button type="button" class="btn btn-secondary></button>`;
             questions.appendChild(div);
         }
 

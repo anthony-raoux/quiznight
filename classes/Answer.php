@@ -36,13 +36,13 @@ class Answer {
     }
     
     public function getAnswers($question_id) {
-        $query = "SELECT id, answer, is_correct FROM " . $this->table_name . " WHERE question_id = :question_id";
+        $query = "SELECT id, answer, is_correct FROM answers WHERE question_id = :question_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':question_id', $question_id);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
+    
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " SET question_id=:question_id, answer=:answer, is_correct=:is_correct";
 

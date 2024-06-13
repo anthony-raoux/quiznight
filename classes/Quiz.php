@@ -44,6 +44,14 @@ class Quiz {
         }
     }
 
+    public function getQuestions($quiz_id) {
+        $query = "SELECT id, question FROM questions WHERE quiz_id = :quiz_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':quiz_id', $quiz_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function updateAnswer($answer_id, $answer_text) {
         $query = "UPDATE answers SET answer_text = :answer_text WHERE id = :answer_id";
         $stmt = $this->conn->prepare($query);
@@ -105,6 +113,19 @@ public function readOne($quiz_id) {
         }
 
         return false;
+    }
+
+    public function updateQuestion($question_id, $question_text) {
+        $query = "UPDATE questions SET question = :question_text WHERE id = :question_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':question_text', $question_text);
+        $stmt->bindParam(':question_id', $question_id, PDO::PARAM_INT);
+        
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function readAll() {
