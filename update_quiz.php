@@ -21,10 +21,21 @@ if ($_POST) {
     $quiz_id = $_POST['quiz_id'];
     $title = $_POST['title'];
     $description = $_POST['description'];
+    $answers = $_POST['answers']; // Tableau des réponses à mettre à jour
 
-    // Appel de la méthode update() avec les trois arguments nécessaires
-    if ($quiz->update($quiz_id, $title, $description)) {
+    // Mettre à jour le quiz principal
+    if ($quiz->updateQuiz($quiz_id, $title, $description)) {
         echo "Quiz updated successfully.";
+
+        // Mettre à jour chaque réponse
+        foreach ($answers as $answer_id => $answer_data) {
+            $answer_text = $answer_data['answer_text'];
+            if ($quiz->updateAnswer($answer_id, $answer_text)) {
+                echo "Answer updated successfully.";
+            } else {
+                echo "Failed to update answer.";
+            }
+        }
     } else {
         echo "Failed to update quiz.";
     }

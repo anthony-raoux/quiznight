@@ -27,13 +27,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 </li>
                 <?php if (isset($_SESSION['admin_id'])) : ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin.php">Add Quiz</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="update_quiz.php">Update Quiz</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="delete_quiz.php">Delete Quiz</a>
+                        <a class="nav-link" href="admin.php">Admin</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="logout.php">Logout</a>

@@ -1,42 +1,65 @@
 <?php
 session_start();
 
-// Vérifie si l'utilisateur est connecté en tant qu'admin
+// Vérification si l'utilisateur est connecté en tant qu'admin
 if (!isset($_SESSION['admin_id'])) {
     header("Location: login.php");
     exit;
 }
 
-// Inclusion des fichiers requis
+// Inclure les fichiers requis
 require_once __DIR__ . '/classes/Database.php';
 require_once __DIR__ . '/classes/Quiz.php';
+require_once __DIR__ . '/classes/Answer.php';
 
-// Initialisation de la connexion à la base de données et de l'objet Quiz
+// Initialisation de la connexion à la base de données et des objets Quiz et Answer
 $database = new Database();
 $db = $database->getConnection();
 $quiz = new Quiz($db);
+$answer = new Answer($db);
 
-// Vérifie si l'ID du quiz à éditer est présent dans l'URL
+// Variables pour stocker les détails du quiz et les réponses
+$quiz_id = null;
+$quiz_title = '';
+$quiz_description = '';
+$answers = []; // Tableau pour stocker les réponses
+
 if (isset($_GET['id'])) {
     $quiz_id = $_GET['id'];
 
-    // Utilisation de la méthode readOne() pour récupérer les détails du quiz
-    $stmt = $quiz->readOne($quiz_id);
+    // Utilisation de la méthode readOne() de la classe Quiz pour récupérer les détails du quiz
+    $quiz_data = $quiz->readOne($quiz_id);
 
     // Vérification si le quiz existe
-    if ($stmt->rowCount() > 0) {
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $quiz_title = $row['title'];
-        $quiz_description = $row['description'];
+    if ($quiz_data) {
+        $quiz_title = $quiz_data['title'];
+        $quiz_description = $quiz_data['description'];
+
+        // Utilisation de la méthode getAnswers() de la classe Answer pour récupérer les réponses associées
+        $answers = $answer->getAnswers($quiz_id);
+
+        // Vérification si des réponses existent
+        if ($answers) {
+            foreach ($answers as $ans) {
+                ?>
+                <div class="form-group">
+                    <input type="hidden" name="answers[<?php echo $ans['id']; ?>][answer_id]" value="<?php echo $ans['id']; ?>">
+                    <input type="text" name="answers[<?php echo $ans['id']; ?>][answer_text]" class="form-control" value="<?php echo htmlspecialchars($ans['answer']); ?>" required>
+                    <label>
+                        <input type="checkbox" name="answers[<?php echo $ans['id']; ?>][is_correct]" value="1" <?php if ($ans['is_correct'] == 1) echo 'checked'; ?>> Correct
+                    </label>
+                </div>
+                <?php
+            }
+        } else {
+            echo "Aucune réponse trouvée pour ce quiz."; // Affiche si aucune réponse trouvée
+        }
+
     } else {
-        // Si le quiz n'est pas trouvé, rediriger ou afficher un message d'erreur
+        // Gérer le cas où le quiz n'est pas trouvé (par exemple, rediriger ou afficher un message d'erreur)
         echo "Quiz not found.";
         exit;
     }
-} else {
-    // Si l'ID du quiz n'est pas présent dans l'URL, gérer cette situation
-    echo "Quiz ID is missing.";
-    exit;
 }
 ?>
 
@@ -45,33 +68,38 @@ if (isset($_GET['id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Edit Quiz</title>
-    <!-- Intégration de Bootstrap CSS -->
+    <!-- Inclure Bootstrap CSS pour la mise en forme -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <!-- Navbar -->
-    <?php include 'navbar.php'; ?>
-
-    <div class="container mt-5">
-        <h1>Edit Quiz</h1>
-        <form action="update_quiz.php" method="post">
-            <input type="hidden" name="quiz_id" value="<?php echo htmlspecialchars($quiz_id); ?>">
+<div class="container">
+    <h1>Edit Quiz</h1>
+    <form action="update_quiz.php" method="post">
+        <input type="hidden" name="quiz_id" value="<?php echo $quiz_id; ?>">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title" class="form-control" value="<?php echo htmlspecialchars($quiz_title); ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea name="description" id="description" class="form-control" required><?php echo htmlspecialchars($quiz_description); ?></textarea>
+        </div>
+        <!-- Afficher les réponses existantes -->
+        <?php foreach ($answers as $ans) { ?>
             <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" name="title" id="title" class="form-control" value="<?php echo htmlspecialchars($quiz_title); ?>" required>
+                <input type="hidden" name="answers[<?php echo $ans['id']; ?>][answer_id]" value="<?php echo $ans['id']; ?>">
+                <input type="text" name="answers[<?php echo $ans['id']; ?>][answer_text]" class="form-control" value="<?php echo htmlspecialchars($ans['answer']); ?>" required>
+                <label>
+                    <input type="checkbox" name="answers[<?php echo $ans['id']; ?>][is_correct]" value="1" <?php if ($ans['is_correct'] == 1) echo 'checked'; ?>> Correct
+                </label>
             </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea name="description" id="description" class="form-control" required><?php echo htmlspecialchars($quiz_description); ?></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Update Quiz</button>
-        </form>
-    </div>
+        <?php } ?>
 
-    <!-- Footer -->
-    <?php include 'footer.php'; ?>
+        <button type="submit" class="btn btn-primary mt-2">Update Quiz</button>
+    </form>
+</div>
 
-    <!-- Intégration de Bootstrap JS (optionnel, dépendant de vos besoins) -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Inclure Bootstrap JS pour les fonctionnalités supplémentaires (facultatif) -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

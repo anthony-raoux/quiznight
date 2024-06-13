@@ -95,7 +95,7 @@ $quizzes = $quiz->readAll();
         </form>
 
         <h1 class="mt-5">Existing Quizzes</h1>
-    <?php while ($row = $quizzes->fetch(PDO::FETCH_ASSOC)) { ?>
+        <?php while ($row = $quizzes->fetch(PDO::FETCH_ASSOC)) { ?>
     <li class="list-group-item">
         <?php echo $row['title']; ?> - <?php echo $row['description']; ?>
         <div class="btn-group float-right" role="group">
@@ -107,6 +107,7 @@ $quizzes = $quiz->readAll();
         </div>
     </li>
 <?php } ?>
+
 
 
     <script>
