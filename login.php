@@ -4,6 +4,7 @@ session_start();
 require_once './classes/Database.php';
 require_once './classes/Admin.php';
 
+
 $database = new Database();
 $db = $database->getConnection();
 
@@ -22,6 +23,8 @@ if ($_POST) {
 }
 ?>
 
+<?php include 'navbar.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +32,7 @@ if ($_POST) {
     <title>Login</title>
 </head>
 <body>
+    
     <form action="login.php" method="post">
         <div>
             <label for="username">Username</label>

@@ -45,6 +45,8 @@ if ($_POST) {
 $quizzes = $quiz->readAll();
 ?>
 
+<?php include 'navbar.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,61 +54,77 @@ $quizzes = $quiz->readAll();
     <title>Admin</title>
 </head>
 <body>
-    <h1>Create Quiz</h1>
-    <form action="admin.php" method="post">
-        <div>
-            <label for="title">Title</label>
-            <input type="text" name="title" id="title" required>
-        </div>
-        <div>
-            <label for="description">Description</label>
-            <textarea name="description" id="description" required></textarea>
-        </div>
-        <div>
-            <label for="questions">Questions</label>
+    <div class="container">
+        <h1>Create Quiz</h1>
+        <form action="admin.php" method="post">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" name="title" id="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea name="description" id="description" class="form-control" required></textarea>
+            </div>
             <div id="questions">
-                <div class="question">
-                    <input type="text" name="questions[0][question]" placeholder="Question" required>
-                    <div class="answers">
-                        <input type="text" name="questions[0][answers][]" placeholder="Answer 1" required>
-                        <input type="radio" name="questions[0][correct_answer]" value="0" required> Correct<br>
-                        <input type="text" name="questions[0][answers][]" placeholder="Answer 2" required>
-                        <input type="radio" name="questions[0][correct_answer]" value="1" required> Correct<br>
-                        <input type="text" name="questions[0][answers][]" placeholder="Answer 3" required>
-                        <input type="radio" name="questions[0][correct_answer]" value="2" required> Correct
+                <div class="form-group">
+                    <label>Question</label>
+                    <input type="text" name="questions[0][question]" class="form-control" placeholder="Question" required>
+                    <div class="answers mt-2">
+                        <div class="form-group">
+                            <input type="text" name="questions[0][answers][]" class="form-control" placeholder="Answer 1" required>
+                            <input type="radio" name="questions[0][correct_answer]" value="0" required> Correct
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="questions[0][answers][]" class="form-control" placeholder="Answer 2" required>
+                            <input type="radio" name="questions[0][correct_answer]" value="1" required> Correct
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="questions[0][answers][]" class="form-control" placeholder="Answer 3" required>
+                            <input type="radio" name="questions[0][correct_answer]" value="2" required> Correct
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="questions[0][answers][]" class="form-control" placeholder="Answer 4" required>
+                            <input type="radio" name="questions[0][correct_answer]" value="3" required> Correct
+                        </div>
                     </div>
-                    <button type="button" onclick="addAnswer(this)">Add Answer</button>
+                    <button type="button" class="btn btn-secondary" onclick="addAnswer(this)">Add Answer</button>
                 </div>
             </div>
-            <button type="button" onclick="addQuestion()">Add Question</button>
-        </div>
-        <button type="submit">Create Quiz</button>
-    </form>
+            <button type="button" class="btn btn-secondary" onclick="addQuestion()">Add Question</button>
+            <button type="submit" class="btn btn-primary mt-2">Create Quiz</button>
+        </form>
 
-    <h1>Existing Quizzes</h1>
-    <ul>
-        <?php while ($row = $quizzes->fetch(PDO::FETCH_ASSOC)) { ?>
-            <li><?php echo $row['title']; ?> - <?php echo $row['description']; ?></li>
-        <?php } ?>
-    </ul>
+        <h1 class="mt-5">Existing Quizzes</h1>
+        <ul class="list-group">
+            <?php while ($row = $quizzes->fetch(PDO::FETCH_ASSOC)) { ?>
+                <li class="list-group-item"><?php echo $row['title']; ?> - <?php echo $row['description']; ?></li>
+            <?php } ?>
+        </ul>
+    </div>
 
     <script>
         function addQuestion() {
             const questions = document.getElementById('questions');
             const count = questions.children.length;
             const div = document.createElement('div');
-            div.classList.add('question');
-            div.innerHTML = `<input type="text" name="questions[${count}][question]" placeholder="Question" required>
-                             <div class="answers">
-                                 <input type="text" name="questions[${count}][answers][]" placeholder="Answer" required>
-                                 <input type="radio" name="questions[${count}][correct_answer]" value="0" required> Correct<br>
-                                 <input type="text" name="questions[${count}][answers][]" placeholder="Answer" required>
-                                 <input type="radio" name="questions[${count}][correct_answer]" value="1" required> Correct<br>
-                                 <input type="text" name="questions[${count}][answers][]" placeholder="Answer" required>
-                                 <input type="radio" name="questions[${count}][correct_answer]" value="2" required> Correct
-                                 
+            div.classList.add('form-group');
+            div.innerHTML = `<label>Question</label>
+                             <input type="text" name="questions[${count}][question]" class="form-control" placeholder="Question" required>
+                             <div class="answers mt-2">
+                                 <div class="form-group">
+                                     <input type="text" name="questions[${count}][answers][]" class="form-control" placeholder="Answer 1" required>
+                                     <input type="radio" name="questions[${count}][correct_answer]" value="0" required> Correct
+                                 </div>
+                                 <div class="form-group">
+                                     <input type="text" name="questions[${count}][answers][]" class="form-control" placeholder="Answer 2" required>
+                                     <input type="radio" name="questions[${count}][correct_answer]" value="1" required> Correct
+                                 </div>
+                                 <div class="form-group">
+                                     <input type="text" name="questions[${count}][answers][]" class="form-control" placeholder="Answer 3" required>
+                                     <input type="radio" name="questions[${count}][correct_answer]" value="2" required> Correct
+                                 </div>
                              </div>
-                             <button type="button" onclick="addAnswer(this)">Add Answer</button>`;
+                             <button type="button" class="btn btn-secondary" onclick="addAnswer(this)">Add Answer</button>`;
             questions.appendChild(div);
         }
 
@@ -114,11 +132,13 @@ $quizzes = $quiz->readAll();
             const answers = button.previousElementSibling;
             const count = answers.children.length / 2; // divide by 2 because each answer has two elements (input + radio)
             const div = document.createElement('div');
-            div.classList.add('answer');
-            div.innerHTML = `<input type="text" name="answers[${count}][answer]" placeholder="Answer" required>
+            div.classList.add('form-group');
+            div.innerHTML = `<input type="text" name="answers[${count}][answer]" class="form-control" placeholder="Answer" required>
                              <input type="radio" name="questions[${count}][correct_answer]" value="${count}" required> Correct`;
             answers.appendChild(div);
         }
     </script>
+
+    <?php include 'footer.php'; ?>
 </body>
 </html>

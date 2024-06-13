@@ -12,6 +12,8 @@ $quiz = new Quiz($db);
 $quizzes = $quiz->readAll();
 ?>
 
+<?php include 'navbar.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

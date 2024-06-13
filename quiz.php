@@ -22,6 +22,8 @@ if ($quiz_id) {
 }
 ?>
 
+<?php include 'navbar.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,5 +46,7 @@ if ($quiz_id) {
         <?php endforeach; ?>
         <button type="submit">Submit</button>
     </form>
+    
+    <?php include 'footer.php'; ?>
 </body>
 </html>
