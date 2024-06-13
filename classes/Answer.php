@@ -42,7 +42,7 @@ class Answer {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
+
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " SET question_id=:question_id, answer=:answer, is_correct=:is_correct";
 
@@ -71,5 +71,23 @@ class Answer {
         $stmt->execute();
 
         return $stmt;
+    }
+    public function getAnswerById($answer_id) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $answer_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public function updateAnswer($answer_id, $answer_text, $is_correct) {
+        $query = "UPDATE " . $this->table_name . " SET answer = :answer_text, is_correct = :is_correct WHERE id = :answer_id";
+        $stmt = $this->conn->prepare($query);
+    
+        $stmt->bindParam(':answer_text', $answer_text);
+        $stmt->bindParam(':is_correct', $is_correct, PDO::PARAM_INT);
+        $stmt->bindParam(':answer_id', $answer_id, PDO::PARAM_INT);
+    
+        return $stmt->execute();
     }
 }

@@ -38,18 +38,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $quiz_details = $quiz->getQuizById($quiz_id);
 
     // Output results
-    echo "<h1>Quiz Results</h1>";
-    echo "<p>Total Questions: $total_questions</p>";
-    echo "<p>Correct Answers: $correct_answers</p>";
-    echo "<p>Score: $score%</p>";
+    ?>
+    <?php include 'navbar.php'; ?>
 
-    // Example of showing quiz details if needed
-    // echo "<p>Quiz Name: {$quiz_details['quiz_name']}</p>";
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Quiz Results</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-w1QBRaD/smK2uWRzyD1O3uTps9pBBHiC4N9iwUb5Kr8KSkM+SOJwB3TrC6K06fxE" crossorigin="anonymous">
+    </head>
+    <body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Quiz Results</h1>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quiz: <?php echo $quiz_details['title']; ?></h5>
+                <p class="card-text">Total Questions: <?php echo $total_questions; ?></p>
+                <p class="card-text">Correct Answers: <?php echo $correct_answers; ?></p>
+                <p class="card-text">Score: <?php echo $score; ?>%</p>
+            </div>
+        </div>
+    </div>
 
-    // Include navbar and footer
-   
-    include 'footer.php';
+    <?php include 'footer.php'; ?>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js" integrity="sha384-4a56PQvKdXfrjHLsXzdtH2kEZD1Eg4yZ2Gl6xH/mnIeRMJnlCU3Keh4sCQVW0lN4" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+7Dk0yD95peD/Qlh/wIM+Lcaj8ORmeG7JFg" crossorigin="anonymous"></script>
+    </body>
+    </html>
+    <?php
     exit; // Stop further execution
 } else {
     // Redirect if not a POST request (to prevent direct access)
