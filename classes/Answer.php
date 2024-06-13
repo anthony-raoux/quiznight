@@ -21,18 +21,20 @@ class Answer {
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $question_id);
         $stmt->execute();
-        return $stmt;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
 
     public function getCorrectAnswer($question_id)
     {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE question_id = ? AND is_correct = 1 LIMIT 1";
+        $query = "SELECT id FROM " . $this->table_name . " WHERE question_id = ? AND is_correct = 1 LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $question_id);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row['answer'] ?? null;
+        return $row['id'] ?? null;
     }
+    
     
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " SET question_id=:question_id, answer=:answer, is_correct=:is_correct";
