@@ -1,22 +1,26 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 require_once './classes/Database.php';
 require_once './classes/Admin.php';
-
 
 $database = new Database();
 $db = $database->getConnection();
 
 $admin = new Admin($db);
 
-if ($_POST) {
+$error_message = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $admin->username = $_POST['username'];
     $admin->password = $_POST['password'];
 
     if ($admin->login()) {
         $_SESSION['admin_id'] = $admin->id;
         header("Location: admin.php");
+        exit;
     } else {
         $error_message = "Invalid username or password.";
     }
@@ -44,6 +48,8 @@ if ($_POST) {
         </div>
         <button type="submit">Login</button>
     </form>
-    <?php if (isset($error_message)) { echo $error_message; } ?>
+    <?php if ($error_message): ?>
+        <p><?php echo $error_message; ?></p>
+    <?php endif; ?>
 </body>
 </html>

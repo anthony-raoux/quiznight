@@ -1,3 +1,8 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,12 +25,24 @@
                 <li class="nav-item">
                     <a class="nav-link" href="quizzes.php">Quizzes</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="admin.php">Admin</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="login.php">Login</a>
-                </li>
+                <?php if (isset($_SESSION['admin_id'])) : ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin.php">Add Quiz</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="update_quiz.php">Update Quiz</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="delete_quiz.php">Delete Quiz</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
+                    </li>
+                <?php else : ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.php">Login</a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </div>
     </nav>

@@ -1,6 +1,15 @@
 <?php
-session_start();
-session_unset();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Détruire toutes les variables de session
+$_SESSION = [];
+
+// Détruire la session
 session_destroy();
-header('Location: login.php');
+
+// Rediriger vers la page de connexion
+header("Location: login.php");
 exit;
+?>

@@ -40,7 +40,7 @@ if ($quiz_id) {
                 <?php $answers = $answer->getAnswersByQuestion($question['id']); ?>
                 <?php foreach ($answers as $ans) : ?>
                     <input type="radio" name="answers[<?php echo $question['id']; ?>]" value="<?php echo $ans['id']; ?>">
-                    <label><?php echo $ans['answer']; ?> (ID: <?php echo $ans['id']; ?>)</label><br>
+                    <label><?php echo $ans['answer']; ?> </label><br>
                 <?php endforeach; ?>
             </div>
         <?php endforeach; ?>
