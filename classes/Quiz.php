@@ -129,11 +129,10 @@ public function readOne($quiz_id) {
     }
 
     public function readAll() {
-        $query = "SELECT id, title, description, created_at FROM " . $this->table_name . " ORDER BY created_at DESC";
-
+        $query = "SELECT id, title, description, created_by FROM quizzes";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-
         return $stmt;
     }
+    
 }
