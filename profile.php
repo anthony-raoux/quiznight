@@ -41,7 +41,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
 // Traitement de la suppression du compte
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_account'])) {
     if ($admin->delete()) {
-        // Déconnexion et rediriger vers la page de connexion
         session_destroy();
         header("Location: login.php");
         exit;
